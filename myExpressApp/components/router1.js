@@ -1,29 +1,42 @@
-const fs = require('fs');
+// router-2.js
+const fs = require('fs').promises;
 const morgan = require('morgan');
 const express = require('express');
 const app = express();
 
-// Добавляем middleware для логирования запросов с использованием Morgan
+// HANDLING MIDDLEWARE FOR REQUEST LOGGING BY morgan
 app.use(morgan('combined'));
 
-// Обрабатываем POST-запросы от Роутера 1
-app.post('/', (req, res) => {
+// POST-REQUEST PROCESSING FROM ROUTER 1
+app.post('/', async (req, res) => {
     const requestBody = req.body;
     console.log('Получен запрос от Роутера 1:');
     console.log(requestBody);
 
-    // Обрабатываем запрос и формируем ответ
-    const response = processRequest(requestBody);
-
-    // Отправляем ответ на Роутер 1
-    res.send(response);
+    try {
+        // REQUEST PROCESSING AND SENDING RESPONSE
+        const response = await processRequest(requestBody);
+        res.send(response);
+    } catch (error) {
+        // SENDING RESPONSE TO ROUTER 1
+        res.status(500).send(`Ошибка: ${error.message}`);
+    }
 });
 
-// Запускаем сервер на порту 4002
+// SERVER LAUNCHING ON 4002 HOST
 app.listen(4002, () => {
     console.log('Сервер Роутера 2 запущен на порту 4002');
 });
 
-function processRequest(request) {
-    // Здесь добавьте вашу логику обработки запроса и формирования ответа, как было показано ранее
+async function processRequest(request) {
+    const { command } = request;
+
+    // COMMAND TYPE CHECKING
+    if (command === 'ping') {
+        return 'Ответ на ping';
+    } else if (command === 'status') {
+        return 'Статус: активен';
+    } else {
+        return 'Неизвестная команда';
+    }
 }

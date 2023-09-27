@@ -1,4 +1,5 @@
-const fs = require('fs');
+// client.js
+const fs = require('fs').promises;
 const net = require('net');
 const commander = require('commander');
 
@@ -20,14 +21,19 @@ const request = commander.message;
 client.connect(3000, '127.0.0.1', () => {
     console.log('Подключено к серверу');
 
-    // Отправляем запрос на сервер
+    // SENDING REQUEST TO SERVER
     client.write(request);
 });
 
-client.on('data', (data) => {
+client.on('data', async (data) => {
     const response = data.toString('utf8');
     console.log('Получен ответ от сервера:');
     console.log(response);
+    try {
+        await fs.writeFile('response.txt', response); // Запись ответа в файл
+    } catch (error) {
+        console.error(`Ошибка записи в файл: ${error.message}`);
+    }
 });
 
 client.on('close', () => {

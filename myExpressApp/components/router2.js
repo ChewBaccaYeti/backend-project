@@ -1,33 +1,42 @@
-const fs = require('fs');
+// router-3.js
+const fs = require('fs').promises;
 const morgan = require('morgan');
 const express = require('express');
 const app = express();
 
-// Добавляем middleware для логирования запросов с использованием Morgan
+// HANDLING MIDDLEWARE FOR REQUEST LOGGING BY morgan
 app.use(morgan('combined'));
 
-// Обрабатываем POST-запросы от Роутера 1
-app.post('/', (req, res) => {
+// POST-REQUEST PROCESSING FROM ROUTER 1
+app.post('/', async (req, res) => {
     const requestBody = req.body;
     console.log('Получен запрос от Роутера 1:');
     console.log(requestBody);
 
-    // Выполняем валидацию и аутентификацию
-    if (validateAndAuthenticate(requestBody)) {
-        // Если клиент имеет права доступа, отправляем ему ответ
-        res.send('Разрешенный ответ для клиента');
-    } else {
-        // Если клиент не прошел валидацию или аутентификацию, отправляем отказ
-        res.status(403).send('Отказано в доступе');
+    try {
+        // VALIDATION AND AUTHENTICATION PROCESS
+        if (await validateAndAuthenticate(requestBody)) {
+            res.send('Разрешенный ответ для клиента');
+        } else {
+            // IF CLIENT FAILED HIS VALIDATION/AUTHENTICATION PROCESS - REFUSE HIS REQUEST
+            res.status(403).send('Отказано в доступе');
+        }
+    } catch (error) {
+        res.status(500).send(`Ошибка: ${error.message}`);
     }
 });
 
-// Запускаем сервер на порту 4003
+// SERVER LAUNCHING ON 4003 HOST
 app.listen(4003, () => {
     console.log('Сервер Роутера 3 запущен на порту 4003');
 });
 
-function validateAndAuthenticate(request) {
-    // Здесь добавьте вашу логику валидации и аутентификации, как было показано ранее
-    return true; // Временно всегда разрешаем доступ
+async function validateAndAuthenticate(request) {
+    const { username, password } = request;
+
+    if (username === 'user' && password === 'password') {
+        return true;
+    } else {
+        return false;
+    }
 }

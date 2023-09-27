@@ -1,46 +1,46 @@
-const fs = require('fs');
+// server.js
+const fs = require('fs').promises;
 const commander = require('commander');
 const morgan = require('morgan');
 const cors = require('cors');
 const express = require('express');
 const app = express();
 
-// Добавляем middleware для логирования запросов с использованием Morgan
+// HANDLING MIDDLEWARE FOR REQUEST LOGGING BY morgan
 app.use(morgan('combined'));
 
-// Добавляем middleware для разрешения CORS
+// ADD MIDDLEWARE FOR CORS ACCESS
 app.use(cors());
 
-// Обрабатываем GET-запросы на корневой URL
+// GET-REQUEST PROCESSING ON URL DIRECTION
 app.get('/', (req, res) => {
     res.send('Добро пожаловать на сервер');
 });
 
-// Обрабатываем POST-запросы с использованием команды commander
+// POST-REQUEST PROCESSING BY commander
 commander
     .command('post <message>')
     .description('Отправить сообщение на роутер')
-    .action((message) => {
-        // Обрабатываем POST-запрос и отправляем сообщение на роутер
-        sendCommandToRouter(message, router1Config)
-            .then((response) => {
-                res.send(response);
-            })
-            .catch((error) => {
-                res.status(500).send(`Ошибка: ${error.message}`);
-            });
+    .action(async (message) => {
+        try {
+            // POST-REQUEST PROCESSING AND SENDING RESPONSE
+            const response = await sendCommandToRouter(message, router1Config);
+            res.send(response);
+        } catch (error) {
+            res.status(500).send(`Ошибка: ${error.message}`);
+        }
     });
 
-// Запускаем сервер на порту 3000
+// LAUNCHING SERVER ON 3000 PORT
 app.listen(3000, () => {
     console.log('Сервер запущен на порту 3000');
 });
 
 const { Connection } = require('node-routeros');
 const router1Config = {
-    host: 'router1_ip_address', // Замените на IP-адрес вашего первого роутера
-    user: 'admin', // Замените на имя пользователя вашего роутера
-    password: 'password', // Замените на пароль вашего роутера
+    host: 'router1_ip_address',
+    user: 'admin',
+    password: 'password',
 };
 
 async function sendCommandToRouter(command, routerConfig) {
